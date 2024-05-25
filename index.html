@@ -1,15 +1,9 @@
-<!DOCTYPE html>
+v<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>Your GameSalad TMA</title>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<meta http-equiv="Cache-Control" content="no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-
+<title>My Game</title>
 <link rel="stylesheet" type="text/css" href="css/gse-style.css" />
 <link rel="stylesheet" type="text/css" href="css/gse-style-loading.css" />
 <style type="text/css">
@@ -19,41 +13,90 @@ body {
     padding: 0;
 }
 </style>
+<!-- Telegram SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-
 <body>
 <div id="gse-player" class="gse-frame">
+    <div class="gse-overlay">
+        <div id="gse-text" class="gse-dialog">
+            <div>
+                <button id="gse-text-cancel">Cancel</button>
+                <button id="gse-text-done">Done</button>
+                <p id="gse-text-prompt"></p>
+            </div>
+            <div>
+                <textarea id="gse-text-input"></textarea>
+            </div>
+        </div>
+        <div id="gse-browser" class="gse-dialog">
+            <iframe id="gse-browser-frame"></iframe>
+                <button id="gse-browser-close" href="#">&#10006;</button>
+        </div>
+        <div id="gse-loading" style="visibility: visible;">
+            <img src="images/gse-loading.png" />
+        </div>
     </div>
+</div>
 
 <script type="text/javascript">
 (function(global) {
-
-    // ... (Your existing GameSalad onEngineLoad function) ...
-
     global.onEngineLoad = function() {
         gse.ready(function(engine) {
-            // ... (Your existing GameSalad engine setup) ...
+            var loadingElement = document.getElementById('gse-loading');
+            var playerDelegate = {
+                onLoadingBegin: function() {
+                    engine.showOverlay();
+                    loadingElement.style.visibility = 'visible';
+                },
+                onLoadingEnd: function() {
+                    loadingElement.style.visibility = 'hidden';
+                    engine.hideOverlay();
+                },
+                onWindowResize: function() {
+                    engine.relayout();
+                }
+            };
+            engine.appendDelegate(playerDelegate);
+            window.addEventListener('resize', playerDelegate.onWindowResize, false);
 
-            // Telegram Web App Integration
-            if (window.Telegram.WebApp) {
-                const telegramWebApp = window.Telegram.WebApp;
-
-                // Example: Get user information from Telegram
-                console.log("Telegram User:", telegramWebApp.initDataUnsafe?.user);
-
-                // Example: Send data back to Telegram
-                telegramWebApp.sendData("Hello from your GameSalad TMA!");
-            } else {
-                console.warn("Telegram Web App SDK not available.");
+            var MUTE_ON_HIDDEN = false;
+            if (MUTE_ON_HIDDEN) {
+                document.addEventListener("visibilitychange", onVisibilityChanged, false);
+                document.addEventListener("mozvisibilitychange", onVisibilityChanged, false);
+                document.addEventListener("webkitvisibilitychange", onVisibilityChanged, false);
+                document.addEventListener("msvisibilitychange", onVisibilityChanged, false);
+                function onVisibilityChanged() {
+                    if (document.hidden || document.mozHidden || document.webkitHidden || document.msHidden)
+                        gse.setGameVolume(engine, 0);
+                    else
+                        gse.setGameVolume(engine, 1);
+                };
             }
 
-            // ... (Rest of your GameSalad game logic) ...
+            engine.setRenderFrame('gse-player');
+            engine.setOptions({
+                'viewport-reference': 'window',
+                'viewport-fit': 'letterbox'
+            });
+            engine.loadOptionsFromURL();
+            engine.play();
         });
     };
 
+    // Initialize Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        console.log(tg.initDataUnsafe.user);
+    } else {
+        console.log("Telegram WebApp SDK not found or not running inside Telegram.");
+    }
 }(window));
 </script>
 
 <script type="text/javascript" src="js/gse/gse-export.js" async onload="onEngineLoad()"></script>
 </body>
 </html>
+

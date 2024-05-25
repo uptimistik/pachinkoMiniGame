@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Your GameSalad TMA</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta http-equiv="Cache-Control" content="no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<link rel="stylesheet" type="text/css" href="css/gse-style.css" />
+<link rel="stylesheet" type="text/css" href="css/gse-style-loading.css" />
+<style type="text/css">
+body {
+    background-color: black;
+    margin: 0;
+    padding: 0;
+}
+</style>
+</head>
+
+<body>
+<div id="gse-player" class="gse-frame">
+    </div>
+
+<script type="text/javascript">
+(function(global) {
+
+    // ... (Your existing GameSalad onEngineLoad function) ...
+
+    global.onEngineLoad = function() {
+        gse.ready(function(engine) {
+            // ... (Your existing GameSalad engine setup) ...
+
+            // Telegram Web App Integration
+            if (window.Telegram.WebApp) {
+                const telegramWebApp = window.Telegram.WebApp;
+
+                // Example: Get user information from Telegram
+                console.log("Telegram User:", telegramWebApp.initDataUnsafe?.user);
+
+                // Example: Send data back to Telegram
+                telegramWebApp.sendData("Hello from your GameSalad TMA!");
+            } else {
+                console.warn("Telegram Web App SDK not available.");
+            }
+
+            // ... (Rest of your GameSalad game logic) ...
+        });
+    };
+
+}(window));
+</script>
+
+<script type="text/javascript" src="js/gse/gse-export.js" async onload="onEngineLoad()"></script>
+</body>
+</html>
